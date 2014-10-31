@@ -37,13 +37,12 @@ Small sample sizes at the district level result in noisy estimates for each six 
 
 Below, a histogram of the smoothed district level type 1 population immunity estimates for Jan-Jun 2014.
 
-```{r, fig.width=4.5, fig.height=3.5}
+```{r, fig.width=4.5, fig.height=3}
 ggplot(preds[preds$year==2014,], aes(x=type1_immunity)) + geom_histogram(binwidth=0.05) +
-  labs(title="District Immunity in 2014", x="Estimated Type 1 Immunity", y="District Count") +
+  labs(x="Estimated Type 1 Immunity", y="District Count") +
   theme_prefered()
 ```     
 <br>  <br>  
-
 
 #### Map of District Type 1 Immunity, Jan-Jun 2014
 
@@ -52,7 +51,7 @@ Below, the same data plotted above in map form.
 ```{r,fig.width = 6, fig.height = 4.5}
 plotggMap(data=preds[preds$year==2014,], var.name="type1_immunity",id.var.name="index", 
                  brewer.cols=brewer.pal(9,"RdYlGn"), na.col="grey50", 
-                 legend.title="Type 1\nImmunity", main.title="Esimated Type 1 Immunity", 
+                 legend.title="Type 1\nImmunity", main.title=NULL, 
                  map=district, var.limits=c(0,1), breaks=seq(0,1,.2), legend.pos=NA)
 ```
 
