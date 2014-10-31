@@ -1,10 +1,13 @@
 ---
 title: "Pakistan Poliovirus Population Immunity"
+author: "Alex Upfill-Brown"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-library(knitr)
+#####This page is a example of an R Markdown page, using Pakistan Poliovirus Population Immunity as an example.
+For more comprehensive results see [this shiny dashboard](http://idmod.shinyapps.io/pakistan_dashboard) (username: 'user'; password: 'endpolionow').
+
+```{r setup, include=T, message=F}
 library(rgeos)
 library(maptools)
 library(ggplot2)
@@ -12,28 +15,44 @@ library(mapproj)
 source("C:/Files/Polio/Pakistan/Scripts/PAK_SIAD_Data_Prep.R")
 source("C:/Files/Polio/Pakistan/Scripts/PAK_Function_plotggMap.R")
 
+```   
 
+####Immunity trends since 2001 by six-month interval
+
+Using NP-AFP cases aged 6-59 months, we estimate probability of protection against paralysis using reported OPV dose histories, dose efficacies, and the historical capaign calendar for the appropriate district. 
+
+Below, the national average population immunity is plotted over time.
+
+```{r, fig.width=6, fig.height=3}
+temp = aggregate(n["type1_immunity"], n["year.6mo"], function(x) mean(x, na.rm=T))
+ggplot(temp, aes(x=year.6mo, y=type1_immunity)) + geom_line() + geom_point() + 
+  labs(y="Mean Type 1 Immunity",x="Six-Month Interval") + 
+  scale_y_continuous(limit=c(0,1)) + theme_prefered()
 ```
+<br>  <br>  
 
-####This page is a example of an R Markdown page, using Pakistan Poliovirus Population Immunity as an example.
+####Histogram of modeled district immunity estimates, Jan-Jun 2014
+
+Small sample sizes at the district level result in noisy estimates for each six month interval. We use Bayesian spatiotemporal models to smooth estimates at the district level.
+
+Below, a histogram of the smoothed district level type 1 population immunity estimates for Jan-Jun 2014.
+
+```{r, fig.width=4.5, fig.height=3.5}
+ggplot(preds[preds$year==2014,], aes(x=type1_immunity)) + geom_histogram(binwidth=0.05) +
+  labs(title="District Immunity in 2014", x="Estimated Type 1 Immunity", y="District Count") +
+  theme_prefered()
+```     
+<br>  <br>  
 
 
-Immunity trends since 2001
-```{r}
-temp = aggregate(preds[3], preds[1], mean)
-ggplot(temp, aes(x=year, y=type1_immunity)) + geom_line() + geom_point() + labs(y="Mean Type 1 Immunity",x="Six-Month Interval") + scale_y_continuous(limit=c(0,1))
-```
+#### Map of District Type 1 Immunity, Jan-Jun 2014
 
-Histogram of immunity estimates from 2014
-```{r}
-hist(preds$type1_immunity[preds$year==2014], main="District Type 1 Immunity in 2014", xlab="Estimated Type 1 Immunity", ylab="District Count")
-```
+Below, the same data plotted above in map form.
 
-Map of District Type 1 Immunity
-
-```{r, echo=T, out.width = 800, out.height = 950}
-plt <- plotggMap(data=preds[preds$year==2014,], var.name="type1_immunity",id.var.name="index", brewer.cols=brewer.pal(9,"RdYlGn"), na.col="grey50", 
-             legend.title="Type 1\nImmunity", main.title="Esimated Type 1 Immunity", map=district, var.limits=c(0,1), breaks=seq(0,1,.2), legend.pos=NA) #c(.93,.35)
-plt 
+```{r,fig.width = 6, fig.height = 4.5}
+plotggMap(data=preds[preds$year==2014,], var.name="type1_immunity",id.var.name="index", 
+                 brewer.cols=brewer.pal(9,"RdYlGn"), na.col="grey50", 
+                 legend.title="Type 1\nImmunity", main.title="Esimated Type 1 Immunity", 
+                 map=district, var.limits=c(0,1), breaks=seq(0,1,.2), legend.pos=NA)
 ```
 
